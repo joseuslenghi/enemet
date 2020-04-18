@@ -54,15 +54,10 @@
 						onSuccess: onConnect,
 						onFailure: onFailure,
 						useSSL: true};
-
 			}
 			mqtt.connect(options);
 			return false;
 		}
-
-	
-		
-
 
 
 		function onConnectionLost(){
@@ -92,13 +87,9 @@
 			document.getElementById("messages").innerHTML =out_msg;
 			arrObj.push({"timestamp":d,"topic":r_message.destinationName,"medicion":parseFloat(r_message.payloadString)})
 			grafico();
-		
 			localStorage.setItem('items',JSON.stringify(arrObj));
-
+			
 		}
-
-
-
 
 		function borrar(){
 			localStorage.clear()	
@@ -107,8 +98,49 @@
 			//arrObj = [{"timestamp":null,"topic":"","medicion":0}];
 			document.getElementById('myTable').innerHTML = myvar;
 			grafico()
+			console.log(arrObj);
 		}
 
+		function exportar(){
+			let csvContent = "data:text/csv;charset=utf-8,";
+			for(let row = 0; row < arrObj.length; row++){
+				let keysAmount = Object.keys(arrObj[row]).length
+				let keysCounter = 0
+			
+				// If this is the first row, generate the headings
+				if(row === 0){
+			
+				   // Loop each property of the object
+				   for(let key in arrObj[row]){
+			
+									   // This is to not add a comma at the last cell
+									   // The '\n' adds a new line
+									   csvContent += key + (keysCounter+1 < keysAmount ? ',' : '\r\n' )
+					   keysCounter++
+				   }
+				}else{
+				   for(let key in arrObj[row]){
+					csvContent += arrObj[row][key] + (keysCounter+1 < keysAmount ? ',' : '\r\n' )
+					   keysCounter++
+				   }
+				}
+			
+				keysCounter = 0
+			}
+			console.log(csvContent)
+			
+			
+			
+			var encodedUri = encodeURI(csvContent);
+			var link = document.createElement("a");
+			link.setAttribute("href", encodedUri);
+			link.setAttribute("download", "my_data.csv");
+			
+			
+			link.click(); // This will download the data file named "my_data.csv".
+
+
+		}
 
 		function onConnected(recon,url){
 			console.log(" in onConnected " +reconn);
@@ -120,7 +152,6 @@
 			connected_flag=1
 			document.getElementById("status").innerHTML = "Connected";
 			console.log("on Connect "+connected_flag);
-			
 		}
 
 
