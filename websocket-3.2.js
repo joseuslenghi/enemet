@@ -4,6 +4,7 @@
 		var arrObj;
 		var stopic1;
 		var stopic2;
+		var data1;
 
 		//Recuperado de datos del localStorage
 		if (localStorage.getItem('items')) {
@@ -98,7 +99,7 @@
 			//arrObj = [{"timestamp":null,"topic":"","medicion":0}];
 			document.getElementById('myTable').innerHTML = myvar;
 			grafico()
-			console.log(arrObj);
+			
 		}
 
 		function exportar(){
@@ -106,7 +107,6 @@
 			for(let row = 0; row < arrObj.length; row++){
 				let keysAmount = Object.keys(arrObj[row]).length
 				let keysCounter = 0
-			
 				// If this is the first row, generate the headings
 				if(row === 0){
 			
@@ -124,27 +124,21 @@
 					   keysCounter++
 				   }
 				}
-			
 				keysCounter = 0
 			}
-			console.log(csvContent)
-			
-			
+			//console.log(csvContent)
 			
 			var encodedUri = encodeURI(csvContent);
 			var link = document.createElement("a");
 			link.setAttribute("href", encodedUri);
 			link.setAttribute("download", "my_data.csv");
-			
-			
 			link.click(); // This will download the data file named "my_data.csv".
-
-
 		}
 
 		function onConnected(recon,url){
 			console.log(" in onConnected " +reconn);
 		}
+
 
 		function onConnect() {
 			// Once a connection has been made, make a subscription and send a message.
@@ -153,8 +147,6 @@
 			document.getElementById("status").innerHTML = "Connected";
 			console.log("on Connect "+connected_flag);
 		}
-
-
 
 
 		function sub_topics(){
@@ -203,8 +195,8 @@
 			return false;
 		}
 
+
 		function grafico(){
-		
 		//Cargar elementos en tabla
 			var myvar=0;
 			var objLength = arrObj.length;
@@ -221,12 +213,47 @@
 			}
 			}
 			myvar += '</table>';
+			//document.getElementById('myTable').innerHTML = myvar;
 
 
 
-			document.getElementById('myTable').innerHTML = myvar;
-            console.log(arrObj);
 
+			//tabla con google api
+			
+			google.charts.load('current', {'packages':['table']});
+			google.charts.setOnLoadCallback(drawTable);
+	  
+			function drawTable() {
+			  var data = new google.visualization.DataTable();
+			  data.addColumn('datetime', 'Timestamp');
+			  data.addColumn('string', 'Topic');
+			  data.addColumn('number', 'medicion');
+			//   var temp=new Date(arrObj[1].timestamp);
+			//   var top=arrObj[1].topic;
+			//   var medi =arrObj[1].medicion;
+
+			  let largo = arrObj.length-1;
+
+			  for(var i=1;i<=largo;i++){
+				temp=new Date(arrObj[i].timestamp);
+				topic1=arrObj[i].topic.toString()	;
+				console.log(topic1);
+				medi =arrObj[i].medicion;
+			 	 data.addRows([[temp,topic1,medi]]);
+				}
+			  var table = new google.visualization.Table(document.getElementById('table_div'));
+			  
+
+
+			  var options = {
+				allowHtml:true,
+				showRowNumber: true,
+				width: '100%',
+				height: '100%'
+			};
+
+			  table.draw(data, options);
+			}
 			
 
 		// load current chart package
@@ -258,14 +285,13 @@
 				var chart = new google.visualization.LineChart(
 					document.getElementById("chart_div")
 				);
-				//chart.draw(data, options);
+				
 
-				var tiempo=new Date(arrObj[1].timestamp);
+				var tiempo=new Date(arrObj[0].timestamp);
 				var tiempo1=new Date
-				console.log(tiempo);
-				console.log(tiempo1);
+
 				// interval for adding new data every 250ms
-				var largo = arrObj.length-1;
+				let largo = arrObj.length-1;
 				
 				var graf1;
 				var graf2;
